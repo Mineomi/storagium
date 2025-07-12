@@ -7,11 +7,10 @@ import net.dv8tion.jda.api.entities.Message;
 import java.util.List;
 
 @Data
-public class File {
-    private String type;
-    private String title;
+public class DscFile {
+    private String name;
     private Message.Attachment icon;
-    private List<Long> ids;
+    private List<String> ids;
     private String size;
-    private String date;
+    private String uploadDate;
 }

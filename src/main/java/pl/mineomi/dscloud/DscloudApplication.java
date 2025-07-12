@@ -37,7 +37,7 @@ public class DscloudApplication {
 		for(Guild guild : guilds){
 			guild.upsertCommand("test", "test").queue();
 			guild.upsertCommand("showguilds", "prints guilds that his in").queue();
-
+			guild.upsertCommand("createstorage", "Creates storage category with its channels").queue();
 		}
 	}
 
