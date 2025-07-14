@@ -1,9 +1,7 @@
 package pl.mineomi.dscloud.JDA;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
 import pl.mineomi.dscloud.DscloudApplication;
@@ -77,7 +75,7 @@ public class StorageManager {
 
     }
 
-    public static void saveFilesInChannel(String fileName, String guildId) {
+    public static void saveFilesInChannel(String fileName, String guildId, long fileSize) {
         StorageManager storageManager;
         if(!storageManagerMap.containsKey(guildId))
             new StorageManager().setupStorageChannels(guildId);
@@ -117,13 +115,27 @@ public class StorageManager {
 
         //Send messages with files attached
         int i = 0;
+        List<String> messageIds = new ArrayList<>();
         for(List<FileUpload> list : groupedFiles){
             storageManager.uploadStatus = i/groupedFiles.size();
-            storageManager.content.sendMessage("files")
+            messageIds.add(storageManager.content.sendMessage("files")
                     .addFiles(list)
-                    .complete();
+                    .complete().getId());
             i++;
         }
+
+        //Create DscFile
+        DscFile dscFile = DscFile.builder()
+                .name(fileName)
+                .size(fileSize)
+                .messageIds(messageIds)
+                .uploadDate(new Date().toString())
+                .build();
+
+
+        //Send DscFile to suitable discord channel
+        storageManager.metaContent.sendMessage(dscFile.getName() +"\n" + dscFile.getMessageIds() + "\n" + dscFile.getSize() + "\n" + dscFile.getUploadDate()).queue();
+
 
         storageManager.console.sendMessage("Files transfer compeleted").queue();
 

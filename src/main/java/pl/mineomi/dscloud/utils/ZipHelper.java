@@ -7,6 +7,8 @@ import pl.mineomi.dscloud.JDA.DscFile;
 import pl.mineomi.dscloud.JDA.StorageManager;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -19,8 +21,9 @@ public class ZipHelper {
                 new File(filePath)
         );
 
-        String fileName = Paths.get(filePath).getFileName().toString();
-
+        Path path = Paths.get(filePath);
+        String fileName = path.getFileName().toString();
+        long fileSize = Files.size(path);
 
         File guildDirectory = new File("test2/" + guildId + "/" + fileName);
         if(!guildDirectory.exists())
@@ -31,7 +34,7 @@ public class ZipHelper {
 
 
 
-        StorageManager.saveFilesInChannel(fileName, guildId);
+        StorageManager.saveFilesInChannel(fileName, guildId, fileSize);
     }
 
 
