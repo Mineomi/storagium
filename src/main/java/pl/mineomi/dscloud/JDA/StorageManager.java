@@ -8,7 +8,9 @@ import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
 import pl.mineomi.dscloud.DscloudApplication;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class StorageManager {
     final static int MAX_FILES_IN_MESSAGE = 2;
@@ -72,16 +74,20 @@ public class StorageManager {
 
 
 
-    public void downloadAttachmentsFromList(String guildId, List<String> ids) {
+    public static void downloadAttachmentsFromList(String guildId, DscFile dscFile) throws ExecutionException, InterruptedException {
         StorageManager storageManager = getStorageManagerByGuildId(guildId);
 
-        for(String id : ids){
+        File dir = new File("test2/" + guildId + "/" + dscFile.getName());
+        dir.mkdirs();
+
+        for(String id : dscFile.getMessageIds()){
             Message message = storageManager.content.retrieveMessageById(id).complete();
             for (Message.Attachment attachment : message.getAttachments()){
+                File file = new File("test2/" + guildId + "/" + dscFile.getName() + "/" + attachment.getFileName());
+                attachment.getProxy().downloadToFile(file).get();
 
             }
         }
-
     }
 
     private static StorageManager getStorageManagerByGuildId(String guildId){

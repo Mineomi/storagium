@@ -2,6 +2,7 @@ package pl.mineomi.dscloud.utils;
 
 import lombok.SneakyThrows;
 import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import pl.mineomi.dscloud.JDA.DscFile;
 import pl.mineomi.dscloud.JDA.StorageManager;
@@ -11,11 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 public class ZipHelper {
     @SneakyThrows
-    public void sendFiles(String filePath, String guildId) {
+    public static void sendFiles(String filePath, String guildId) {
 
         List<File> filesToAdd = List.of(
                 new File(filePath)
@@ -38,17 +40,22 @@ public class ZipHelper {
     }
 
 
-    public File downloadFile(DscFile dscFile) {
-        //Namierzenie plików na kanale
+    public static Path downloadFile(DscFile dscFile, String guildId) throws ZipException, ExecutionException, InterruptedException {
+        //Downloading parts of zip file
+        StorageManager.downloadAttachmentsFromList(guildId, dscFile);
+            //Extracting file from part zip files
+            String usedDirectory = "test2/" + guildId + "/" + dscFile.getName() + "/";
+            String partFileName = usedDirectory + "/" + dscFile.getName() + ".zip";
+            String mergedZipFileName = usedDirectory + "/" + dscFile.getName() + "0.zip";
 
-//        new StorageManager().downloadAttachmentsFromList(dscFile.getIds());
+            new ZipFile(partFileName).mergeSplitFiles(new File(mergedZipFileName));
+            new ZipFile(new File(mergedZipFileName)).extractFile(dscFile.getName(), usedDirectory);
 
 
-        //Pobranie ich
-        //Połączenie w jeden plik
-        //Zwrócenie pliku do pobrania
+            return Paths.get(usedDirectory +"/"+dscFile.getName() );
 
-        throw new UnsupportedOperationException("To be implemented");
+
+
     }
 
 }
