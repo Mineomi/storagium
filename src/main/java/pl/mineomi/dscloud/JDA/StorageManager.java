@@ -1,26 +1,40 @@
 package pl.mineomi.dscloud.JDA;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
+import pl.mineomi.dscloud.DscloudApplication;
 
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 public class StorageManager {
+    final static int MAX_FILES_IN_MESSAGE = 2;
+    public static Map<String, StorageManager> storageManagerMap = new HashMap<>();
+
+
     String categoryName = "storage"; //Must be in lowercase
     private static CategoryManagerImpl categoryManager;
-//    private TextChannel console;
-//    private TextChannel metacontent;
-//    private TextChannel content;
+    private TextChannel console;
+    private TextChannel metaContent;
+    private TextChannel content;
+    private int uploadStatus = 0;
+    private int downloadStatus = 0;
 
 
-    public void setStorageChannels(SlashCommandInteractionEvent event) {
+
+    public void setupStorageChannels(String guildId) {
         //If it doesn't have, create storage category
-        if (!checkIfHasStorage(event, categoryName)) {
-            event.getGuild().createCategory(categoryName).complete();
+        Guild guild = DscloudApplication.jda.getGuildById(guildId);
+
+        if (!checkIfHasStorage(guild, categoryName)) {
+            guild.createCategory(categoryName).complete();
         }
 
-        categoryManager = new CategoryManagerImpl(event.getGuild().getCategoriesByName(categoryName, false).get(0));
+        categoryManager = new CategoryManagerImpl(guild.getCategoriesByName(categoryName, false).get(0));
 
         if (!checkIfCategoryHasChannel("console"))
             categoryManager.getChannel().createTextChannel("console").queue();
@@ -29,15 +43,17 @@ public class StorageManager {
         if (!checkIfCategoryHasChannel("content"))
             categoryManager.getChannel().createTextChannel("content").queue();
 
-//        console = event.getGuild().getTextChannelsByName("console", false).get(0);
-//        metacontent = event.getGuild().getTextChannelsByName("metacontent", false).get(0);
-//        content = event.getGuild().getTextChannelsByName("content", false).get(0);
+        console = guild.getTextChannelsByName("console", false).get(0);
+        metaContent = guild.getTextChannelsByName("metacontent", false).get(0);
+        content = guild.getTextChannelsByName("content", false).get(0);
+
+        storageManagerMap.put(guildId, this);
     }
 
-    private boolean checkIfHasStorage(SlashCommandInteractionEvent event, String categoryName) {
-        if (!event.getGuild().getCategories().isEmpty()) {
-            for (int i = 0; i < event.getGuild().getCategories().size(); i++) {
-                if (event.getGuild().getCategories().get(i).getName().equals(categoryName)) {
+    private boolean checkIfHasStorage(Guild guild, String categoryName) {
+        if (!guild.getCategories().isEmpty()) {
+            for (int i = 0; i < guild.getCategories().size(); i++) {
+                if (guild.getCategories().get(i).getName().equals(categoryName)) {
                     return true;
                 }
 
@@ -55,7 +71,61 @@ public class StorageManager {
     }
 
 
-    public void downloadAttachmetsFromList(List<String> ids) {
+
+
+    public void downloadAttachmentsFromList(List<String> ids) {
+
+    }
+
+    public static void saveFilesInChannel(String fileName, String guildId) {
+        StorageManager storageManager;
+        if(!storageManagerMap.containsKey(guildId))
+            new StorageManager().setupStorageChannels(guildId);
+
+        storageManager = storageManagerMap.get(guildId);
+
+        File dir = new File("test2/" + guildId + "/" + fileName);
+
+        //Get files in directory
+        List<File> files = Arrays.stream(dir.listFiles()).toList();
+        List<List<FileUpload>> groupedFiles = new ArrayList<>();
+
+        //Convert File list to FileUpload list
+        List<FileUpload> fileUploads = new ArrayList<>();
+        for(File file : files){
+            fileUploads.add(FileUpload.fromData(file));
+        }
+
+
+
+        //Split files into value of maxFilesInMessage size lists
+        int filesInMessage = 0;
+        int groupedFilesIndex = 0;
+        groupedFiles.add(new ArrayList<>());
+        for(FileUpload file : fileUploads){
+            if(filesInMessage >= StorageManager.MAX_FILES_IN_MESSAGE){
+                groupedFiles.add(new ArrayList<>());
+                groupedFilesIndex++;
+                filesInMessage = 0;
+            }
+
+            groupedFiles.get(groupedFilesIndex).add(file);
+            filesInMessage++;
+                
+            
+        }
+
+        //Send messages with files attached
+        int i = 0;
+        for(List<FileUpload> list : groupedFiles){
+            storageManager.uploadStatus = i/groupedFiles.size();
+            storageManager.content.sendMessage("files")
+                    .addFiles(list)
+                    .complete();
+            i++;
+        }
+
+        storageManager.console.sendMessage("Files transfer compeleted").queue();
 
     }
 }

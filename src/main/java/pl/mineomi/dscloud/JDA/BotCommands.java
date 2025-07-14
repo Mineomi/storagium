@@ -22,7 +22,7 @@ public class BotCommands extends ListenerAdapter {
         switch (event.getName()) {
             case "test" -> event.reply("test123").queue();
             case "showguilds" -> System.out.println(event.getJDA().getGuilds());
-            case "createstorage" -> new StorageManager().setStorageChannels(event);
+            case "createstorage" -> new StorageManager().setupStorageChannels(event.getGuild().getId());
         }
 
 

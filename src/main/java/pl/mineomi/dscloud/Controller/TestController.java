@@ -10,9 +10,15 @@ public class TestController {
 
     @GetMapping("/")
     public String getTest(){
-        new ZipHelper().sendFiles("test2/essenn.mp4");
+        new ZipHelper().sendFiles("test2/essenn.mp4", "848921667833167933");
 
-//        BotCommands.testConnection("848921667833167933"); //guild id
-        return "test123";
+        return "essen";
+    }
+
+    @GetMapping("/hack")
+    public String getTest2(){
+        new ZipHelper().sendFiles("test2/hackToLearn2.mp4", "848921667833167933");
+
+        return "hackToLearnMp4";
     }
 }

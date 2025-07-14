@@ -1,5 +1,6 @@
 package pl.mineomi.dscloud;
 
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,6 +30,9 @@ public class DscloudApplication {
 		builder.setStatus(OnlineStatus.ONLINE);
 
 		builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE, CacheFlag.ACTIVITY, CacheFlag.EMOJI, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS, CacheFlag.STICKER);
+
+		builder.setActivity(Activity.of(Activity.ActivityType.STREAMING,  "Venom Of Venus", "https://www.youtube.com/watch?v=dLbcipFIQAU"));
+
 
 		jda = builder.build().awaitReady();
 
