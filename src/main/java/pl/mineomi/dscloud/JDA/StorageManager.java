@@ -75,12 +75,15 @@ public class StorageManager {
 
     }
 
-    public static void saveFilesInChannel(String fileName, String guildId, long fileSize) {
-        StorageManager storageManager;
+    private static StorageManager getStorageManagerByGuildId(String guildId){
         if(!storageManagerMap.containsKey(guildId))
             new StorageManager().setupStorageChannels(guildId);
 
-        storageManager = storageManagerMap.get(guildId);
+        return storageManagerMap.get(guildId);
+    }
+
+    public static void saveFilesInChannel(String fileName, String guildId, long fileSize) {
+        StorageManager storageManager = getStorageManagerByGuildId(guildId);
 
         File dir = new File("test2/" + guildId + "/" + fileName);
 
