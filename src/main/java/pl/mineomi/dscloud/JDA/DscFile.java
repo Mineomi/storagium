@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class DscFile {
+    private String id;
     private String name;
     private List<String> messageIds;
     private long size;

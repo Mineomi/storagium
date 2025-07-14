@@ -129,6 +129,7 @@ public class StorageManager {
 
         //Create DscFile
         DscFile dscFile = DscFile.builder()
+                .id(UUID.randomUUID().toString())
                 .name(fileName)
                 .size(fileSize)
                 .messageIds(messageIds)
