@@ -136,6 +136,8 @@ public class StorageManager {
         //Send DscFile to suitable discord channel
         storageManager.metaContent.sendMessage(dscFile.getName() +"\n" + dscFile.getMessageIds() + "\n" + dscFile.getSize() + "\n" + dscFile.getUploadDate()).queue();
 
+        //Delete temp directory
+        dir.delete();
 
         storageManager.console.sendMessage("Files transfer compeleted").queue();
 
