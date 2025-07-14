@@ -1,6 +1,7 @@
 package pl.mineomi.dscloud.JDA;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
@@ -71,7 +72,15 @@ public class StorageManager {
 
 
 
-    public void downloadAttachmentsFromList(List<String> ids) {
+    public void downloadAttachmentsFromList(String guildId, List<String> ids) {
+        StorageManager storageManager = getStorageManagerByGuildId(guildId);
+
+        for(String id : ids){
+            Message message = storageManager.content.retrieveMessageById(id).complete();
+            for (Message.Attachment attachment : message.getAttachments()){
+
+            }
+        }
 
     }
 
@@ -141,9 +150,21 @@ public class StorageManager {
         storageManager.metaContent.sendMessage(dscFile.getName() +"\n" + dscFile.getMessageIds() + "\n" + dscFile.getSize() + "\n" + dscFile.getUploadDate()).queue();
 
         //Delete temp directory
-        dir.delete();
+        deleteFolder(dir);
 
         storageManager.console.sendMessage("Files transfer compeleted").queue();
 
+    }
+
+    private static void deleteFolder(File folder) {
+        if (folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) { // null jeśli nie można uzyskać dostępu
+                for (File file : files) {
+                    deleteFolder(file); // rekurencja
+                }
+            }
+        }
+        folder.delete(); // usuwa plik lub pusty folder
     }
 }
