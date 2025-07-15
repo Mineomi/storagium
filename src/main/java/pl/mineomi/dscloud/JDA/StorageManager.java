@@ -173,4 +173,8 @@ public class StorageManager {
         }
         folder.delete(); // usuwa plik lub pusty folder
     }
+
+    public static void deleteDownloadTemporaryFiles(String guildId, String fileName){
+        deleteFolder(new File("test2/" + guildId + "/" + fileName));
+    }
 }

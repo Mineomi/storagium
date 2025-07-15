@@ -8,10 +8,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import pl.mineomi.dscloud.JDA.BotCommands;
 import pl.mineomi.dscloud.JDA.DscFile;
+import pl.mineomi.dscloud.JDA.StorageManager;
 import pl.mineomi.dscloud.utils.ZipHelper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,22 +42,33 @@ public class TestController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<UrlResource> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
-        Path filePath = ZipHelper.downloadFile(DscFile.builder()
+    public ResponseEntity<StreamingResponseBody> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
+        DscFile dscFile = DscFile.builder()
                 .name("hackToLearn2.mp4")
                 .messageIds(new ArrayList<>(List.of("1394422640923508909", "1394422701698842818")))
                 .size(37057257)
-                .uploadDate("Mon Jul 14 22:57:59 CEST 2025").build(),
-                "848921667833167933");
+                .uploadDate("Mon Jul 14 22:57:59 CEST 2025").build();
+        String guildId = "848921667833167933";
 
-        UrlResource resource = new UrlResource(filePath.toUri());
+        Path filePath = ZipHelper.downloadFile(dscFile, guildId);
 
-        if(!resource.exists())
+        File file = filePath.toFile();
+
+        if(!file.exists())
             return ResponseEntity.notFound().build();
+
+        StreamingResponseBody stream = outputStream -> {
+            try(InputStream inputStream = new FileInputStream(file)){
+                inputStream.transferTo(outputStream);
+                outputStream.flush();
+            }finally {
+                StorageManager.deleteDownloadTemporaryFiles(guildId, dscFile.getName());
+            }
+        };
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(stream);
     }
 }
