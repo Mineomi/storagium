@@ -8,7 +8,6 @@ import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
 import pl.mineomi.dscloud.DscloudApplication;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -74,16 +73,16 @@ public class StorageManager {
 
 
 
-    public static void downloadAttachmentsFromList(String guildId, DscFile dscFile) throws ExecutionException, InterruptedException {
-        StorageManager storageManager = getStorageManagerByGuildId(guildId);
+    public static void downloadAttachmentsFromList(DscFile dscFile) throws ExecutionException, InterruptedException {
+        StorageManager storageManager = getStorageManagerByGuildId(dscFile.getGuildId());
 
-        File dir = new File("test2/" + guildId + "/" + dscFile.getName());
+        File dir = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName());
         dir.mkdirs();
 
         for(String id : dscFile.getMessageIds()){
             Message message = storageManager.content.retrieveMessageById(id).complete();
             for (Message.Attachment attachment : message.getAttachments()){
-                File file = new File("test2/" + guildId + "/" + dscFile.getName() + "/" + attachment.getFileName());
+                File file = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/" + attachment.getFileName());
                 attachment.getProxy().downloadToFile(file).get();
 
             }
@@ -174,7 +173,7 @@ public class StorageManager {
         folder.delete(); // usuwa plik lub pusty folder
     }
 
-    public static void deleteDownloadTemporaryFiles(String guildId, String fileName){
-        deleteFolder(new File("test2/" + guildId + "/" + fileName));
+    public static void deleteDownloadTemporaryFiles(DscFile dscFile){
+        deleteFolder(new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName()));
     }
 }

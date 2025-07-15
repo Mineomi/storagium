@@ -40,11 +40,11 @@ public class ZipHelper {
     }
 
 
-    public static Path downloadFile(DscFile dscFile, String guildId) throws ZipException, ExecutionException, InterruptedException {
+    public static Path downloadFile(DscFile dscFile) throws ZipException, ExecutionException, InterruptedException {
         //Downloading parts of zip file
-        StorageManager.downloadAttachmentsFromList(guildId, dscFile);
+        StorageManager.downloadAttachmentsFromList(dscFile);
             //Extracting file from part zip files
-            String usedDirectory = "test2/" + guildId + "/" + dscFile.getName() + "/";
+            String usedDirectory = "test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/";
             String partFileName = usedDirectory + "/" + dscFile.getName() + ".zip";
             String mergedZipFileName = usedDirectory + "/" + dscFile.getName() + "0.zip";
 

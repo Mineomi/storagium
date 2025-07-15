@@ -6,6 +6,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -47,10 +48,10 @@ public class TestController {
                 .name("hackToLearn2.mp4")
                 .messageIds(new ArrayList<>(List.of("1394422640923508909", "1394422701698842818")))
                 .size(37057257)
-                .uploadDate("Mon Jul 14 22:57:59 CEST 2025").build();
-        String guildId = "848921667833167933";
+                .uploadDate("Mon Jul 14 22:57:59 CEST 2025")
+                .guildId("848921667833167933").build();
 
-        Path filePath = ZipHelper.downloadFile(dscFile, guildId);
+        Path filePath = ZipHelper.downloadFile(dscFile);
 
         File file = filePath.toFile();
 
@@ -62,7 +63,7 @@ public class TestController {
                 inputStream.transferTo(outputStream);
                 outputStream.flush();
             }finally {
-                StorageManager.deleteDownloadTemporaryFiles(guildId, dscFile.getName());
+                StorageManager.deleteDownloadTemporaryFiles(dscFile);
             }
         };
 

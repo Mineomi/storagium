@@ -15,4 +15,5 @@ public class DscFile {
     private List<String> messageIds;
     private long size;
     private String uploadDate;
+    private String guildId;
 }
