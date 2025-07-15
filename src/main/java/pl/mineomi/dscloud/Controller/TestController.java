@@ -1,16 +1,12 @@
 package pl.mineomi.dscloud.Controller;
 
-import jakarta.annotation.Resource;
 import net.lingala.zip4j.exception.ZipException;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-import pl.mineomi.dscloud.JDA.BotCommands;
 import pl.mineomi.dscloud.JDA.DscFile;
 import pl.mineomi.dscloud.JDA.StorageManager;
 import pl.mineomi.dscloud.utils.ZipHelper;
@@ -18,10 +14,8 @@ import pl.mineomi.dscloud.utils.ZipHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -46,7 +40,7 @@ public class TestController {
     public ResponseEntity<StreamingResponseBody> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
         DscFile dscFile = DscFile.builder()
                 .name("hackToLearn2.mp4")
-                .messageIds(new ArrayList<>(List.of("1394422640923508909", "1394422701698842818")))
+                .messageIds(List.of("1394620977287004280", "1394621064654360657"))
                 .size(37057257)
                 .uploadDate("Mon Jul 14 22:57:59 CEST 2025")
                 .guildId("848921667833167933").build();
@@ -71,5 +65,20 @@ public class TestController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                 .body(stream);
+    }
+
+    @GetMapping("/delete")
+    public String getTest4() {
+        DscFile dscFile = DscFile.builder()
+                .id("1394621066139402280")
+                .name("hackToLearn2.mp4")
+                .messageIds(List.of("1394620977287004280", "1394621064654360657"))
+                .size(37057257)
+                .uploadDate("Mon Jul 14 22:57:59 CEST 2025")
+                .guildId("848921667833167933").build();
+
+        StorageManager.deleteDscFile(dscFile);
+
+        return "delete test";
     }
 }

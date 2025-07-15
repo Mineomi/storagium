@@ -25,7 +25,6 @@ public class StorageManager {
     private int downloadStatus = 0;
 
 
-
     public void setupStorageChannels(String guildId) {
         //If it doesn't have, create storage category
         Guild guild = DscloudApplication.jda.getGuildById(guildId);
@@ -143,7 +142,6 @@ public class StorageManager {
 
         //Create DscFile
         DscFile dscFile = DscFile.builder()
-                .id(UUID.randomUUID().toString())
                 .name(fileName)
                 .size(fileSize)
                 .messageIds(messageIds)
@@ -175,5 +173,12 @@ public class StorageManager {
 
     public static void deleteDownloadTemporaryFiles(DscFile dscFile){
         deleteFolder(new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName()));
+    }
+
+    public static void deleteDscFile(DscFile dscFile) {
+        StorageManager storageManager = getStorageManagerByGuildId(dscFile.getGuildId());
+
+        storageManager.content.deleteMessagesByIds(dscFile.getMessageIds()).queue();
+        storageManager.metaContent.deleteMessageById(dscFile.getId()).queue();
     }
 }
