@@ -1,5 +1,6 @@
 package pl.mineomi.dscloud.JDA;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -8,6 +9,7 @@ import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
 import pl.mineomi.dscloud.DscloudApplication;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -95,7 +97,7 @@ public class StorageManager {
         return storageManagerMap.get(guildId);
     }
 
-    public static void saveFilesInChannel(String fileName, String guildId, long fileSize) {
+    public static void saveFilesInChannel(String fileName, String guildId, long fileSize) throws IOException {
         StorageManager storageManager = getStorageManagerByGuildId(guildId);
 
         File dir = new File("test2/" + guildId + "/" + fileName);
@@ -134,7 +136,7 @@ public class StorageManager {
         List<String> messageIds = new ArrayList<>();
         for(List<FileUpload> list : groupedFiles){
             storageManager.uploadStatus = i/groupedFiles.size();
-            messageIds.add(storageManager.content.sendMessage("files")
+            messageIds.add(storageManager.content.sendMessage("")
                     .addFiles(list)
                     .complete().getId());
             i++;
@@ -145,30 +147,37 @@ public class StorageManager {
                 .name(fileName)
                 .size(fileSize)
                 .messageIds(messageIds)
-                .uploadDate(new Date().toString())
+                .uploadDate(new Date())
+                .guildId(guildId)
                 .build();
 
 
-        //Send DscFile to suitable discord channel
-        storageManager.metaContent.sendMessage(dscFile.getName() +"\n" + dscFile.getMessageIds() + "\n" + dscFile.getSize() + "\n" + dscFile.getUploadDate()).queue();
+        //Map DscFile to json file
+        File jsonFile = new File(dir + "/" + fileName + ".json");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(jsonFile, dscFile);
+
+
+        //Send json DscFile to suitable discord channel
+        FileUpload metaFile = FileUpload.fromData(jsonFile);
+        storageManager.metaContent.sendMessage("")
+                .addFiles(metaFile)
+                        .complete();
 
         //Delete temp directory
         deleteFolder(dir);
-
-        storageManager.console.sendMessage("Files transfer compeleted").queue();
-
     }
 
     private static void deleteFolder(File folder) {
         if (folder.isDirectory()) {
             File[] files = folder.listFiles();
-            if (files != null) { // null jeśli nie można uzyskać dostępu
+            if (files != null) {
                 for (File file : files) {
-                    deleteFolder(file); // rekurencja
+                    deleteFolder(file);
                 }
             }
         }
-        folder.delete(); // usuwa plik lub pusty folder
+        folder.delete();
     }
 
     public static void deleteDownloadTemporaryFiles(DscFile dscFile){

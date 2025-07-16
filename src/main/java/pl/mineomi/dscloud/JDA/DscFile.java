@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import net.dv8tion.jda.api.entities.Message;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -14,6 +15,6 @@ public class DscFile {
     private String name;
     private List<String> messageIds;
     private long size;
-    private String uploadDate;
+    private Date uploadDate;
     private String guildId;
 }

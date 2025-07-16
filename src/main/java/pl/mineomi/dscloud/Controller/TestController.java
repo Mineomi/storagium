@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -36,13 +37,20 @@ public class TestController {
         return "hackToLearnMp4";
     }
 
+    @GetMapping("/test")
+    public String getTest5(){
+        ZipHelper.sendFiles("test2/test.jpg", "848921667833167933");
+
+        return "small test file";
+    }
+
     @GetMapping("/download")
     public ResponseEntity<StreamingResponseBody> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
         DscFile dscFile = DscFile.builder()
                 .name("hackToLearn2.mp4")
                 .messageIds(List.of("1394620977287004280", "1394621064654360657"))
                 .size(37057257)
-                .uploadDate("Mon Jul 14 22:57:59 CEST 2025")
+                .uploadDate(new Date())
                 .guildId("848921667833167933").build();
 
         Path filePath = ZipHelper.downloadFile(dscFile);
@@ -74,7 +82,7 @@ public class TestController {
                 .name("hackToLearn2.mp4")
                 .messageIds(List.of("1394620977287004280", "1394621064654360657"))
                 .size(37057257)
-                .uploadDate("Mon Jul 14 22:57:59 CEST 2025")
+                .uploadDate(new Date())
                 .guildId("848921667833167933").build();
 
         StorageManager.deleteDscFile(dscFile);
