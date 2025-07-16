@@ -46,12 +46,14 @@ public class TestController {
 
     @GetMapping("/download")
     public ResponseEntity<StreamingResponseBody> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
-        DscFile dscFile = DscFile.builder()
-                .name("hackToLearn2.mp4")
-                .messageIds(List.of("1394620977287004280", "1394621064654360657"))
-                .size(37057257)
-                .uploadDate(new Date())
-                .guildId("848921667833167933").build();
+        DscFile dscFile = new DscFile();
+        dscFile.setId("1394621066139402280");
+        dscFile.setName("hackToLearn2.mp4");
+        dscFile.setMessageIds(List.of("1394620977287004280", "1394621064654360657"));
+        dscFile.setSize(37057257);
+        dscFile.setUploadDate(new Date());
+        dscFile.setGuildId("848921667833167933");
+
 
         Path filePath = ZipHelper.downloadFile(dscFile);
 
@@ -77,13 +79,14 @@ public class TestController {
 
     @GetMapping("/delete")
     public String getTest4() {
-        DscFile dscFile = DscFile.builder()
-                .id("1394621066139402280")
-                .name("hackToLearn2.mp4")
-                .messageIds(List.of("1394620977287004280", "1394621064654360657"))
-                .size(37057257)
-                .uploadDate(new Date())
-                .guildId("848921667833167933").build();
+        DscFile dscFile = new DscFile();
+        dscFile.setId("1394621066139402280");
+        dscFile.setName("hackToLearn2.mp4");
+        dscFile.setMessageIds(List.of("1394620977287004280", "1394621064654360657"));
+        dscFile.setSize(37057257);
+        dscFile.setUploadDate(new Date());
+        dscFile.setGuildId("848921667833167933");
+
 
         StorageManager.deleteDscFile(dscFile);
 

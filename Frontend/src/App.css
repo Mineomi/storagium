@@ -1,0 +1,61 @@
+h1, h2{
+  text-align: center;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.file {
+  background-color: #f5f7fa;
+  border: 1px solid #e0e6ed;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.file:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fileName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.smallIcon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.fileHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.fileName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  /* gap i flex przeniesione do .fileHeader */
+}
+
+.dotsIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  cursor: pointer;
+}

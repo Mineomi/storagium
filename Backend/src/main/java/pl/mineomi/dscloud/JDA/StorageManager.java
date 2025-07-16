@@ -11,6 +11,7 @@ import pl.mineomi.dscloud.DscloudApplication;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class StorageManager {
@@ -127,8 +128,8 @@ public class StorageManager {
 
             groupedFiles.get(groupedFilesIndex).add(file);
             filesInMessage++;
-                
-            
+
+
         }
 
         //Send messages with files attached
@@ -143,13 +144,13 @@ public class StorageManager {
         }
 
         //Create DscFile
-        DscFile dscFile = DscFile.builder()
-                .name(fileName)
-                .size(fileSize)
-                .messageIds(messageIds)
-                .uploadDate(new Date())
-                .guildId(guildId)
-                .build();
+        DscFile dscFile = new DscFile();
+        dscFile.setName(fileName);
+        dscFile.setSize(fileSize);
+        dscFile.setMessageIds(messageIds);
+        dscFile.setUploadDate(new Date());
+        dscFile.setGuildId(guildId);
+
 
 
         //Map DscFile to json file
@@ -189,5 +190,38 @@ public class StorageManager {
 
         storageManager.content.deleteMessagesByIds(dscFile.getMessageIds()).queue();
         storageManager.metaContent.deleteMessageById(dscFile.getId()).queue();
+    }
+
+
+    public static CompletableFuture<List<DscFile>> getFilesInGuild(String guildId) {
+        StorageManager storageManager = getStorageManagerByGuildId(guildId);
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<CompletableFuture<DscFile>> futures = new ArrayList<>();
+        CompletableFuture<List<DscFile>> resultFuture = new CompletableFuture<>();
+
+        storageManager.metaContent.getIterableHistory().forEachAsync(message -> {
+            CompletableFuture<DscFile> fileFuture = message.getAttachments().get(0).getProxy().download().thenApply(inputStream -> {
+                try {
+                    DscFile dscFile = mapper.readValue(inputStream, DscFile.class);
+                    dscFile.setId(message.getId());
+                    return dscFile;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            futures.add(fileFuture);
+            return true;
+        }).thenRun(() ->{
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                    .thenApply(v -> futures.stream().map(future -> future.join()).toList())
+                    .thenAccept(list -> resultFuture.complete(list))
+                    .exceptionally(ex -> {
+                        resultFuture.completeExceptionally(ex);
+                        return null;
+                    });
+        });
+
+        return resultFuture;
     }
 }
