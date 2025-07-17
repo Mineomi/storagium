@@ -42,17 +42,24 @@ public class ZipHelper {
 
     public static Path downloadFile(DscFile dscFile) throws ZipException, ExecutionException, InterruptedException {
         //Downloading parts of zip file
-        StorageManager.downloadAttachmentsFromList(dscFile);
-            //Extracting file from part zip files
-            String usedDirectory = "test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/";
-            String partFileName = usedDirectory + "/" + dscFile.getName() + ".zip";
+        int filesNumber = StorageManager.downloadAttachmentsFromList(dscFile);
+
+        //Extracting file from part zip files
+        String usedDirectory = "test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/";
+        String partFileName = usedDirectory + "/" + dscFile.getName() + ".zip";
+
+        if(filesNumber > 1){
+
             String mergedZipFileName = usedDirectory + "/" + dscFile.getName() + "0.zip";
 
             new ZipFile(partFileName).mergeSplitFiles(new File(mergedZipFileName));
             new ZipFile(new File(mergedZipFileName)).extractFile(dscFile.getName(), usedDirectory);
+        }
+        else
+            new ZipFile(new File(partFileName)).extractFile(dscFile.getName(), usedDirectory);
 
 
-            return Paths.get(usedDirectory +"/"+dscFile.getName() );
+        return Paths.get(usedDirectory +"/"+dscFile.getName() );
 
 
 

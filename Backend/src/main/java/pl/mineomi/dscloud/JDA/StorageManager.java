@@ -75,8 +75,9 @@ public class StorageManager {
 
 
 
-    public static void downloadAttachmentsFromList(DscFile dscFile) throws ExecutionException, InterruptedException {
+    public static int downloadAttachmentsFromList(DscFile dscFile) throws ExecutionException, InterruptedException {
         StorageManager storageManager = getStorageManagerByGuildId(dscFile.getGuildId());
+        int filesNumber = 0;
 
         File dir = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName());
         dir.mkdirs();
@@ -86,9 +87,11 @@ public class StorageManager {
             for (Message.Attachment attachment : message.getAttachments()){
                 File file = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/" + attachment.getFileName());
                 attachment.getProxy().downloadToFile(file).get();
-
+                filesNumber++;
             }
         }
+
+        return filesNumber;
     }
 
     private static StorageManager getStorageManagerByGuildId(String guildId){
