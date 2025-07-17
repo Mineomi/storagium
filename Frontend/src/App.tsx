@@ -64,22 +64,21 @@ function App() {
   }
 
 
-  function handleRename() {
-    if (contextMenu.file) {
-      const newName = prompt('Podaj nową nazwę pliku:', contextMenu.file.name);
-      if (newName && newName !== contextMenu.file.name) {
-        alert(`Zmieniono nazwę pliku na: ${newName}`);
-      }
+  function handleRename(file: DscFile) {
+    const newName = prompt('Podaj nową nazwę pliku:', file.name);
+    if (newName && newName !== file.name) {
+      alert(`Zmieniono nazwę pliku na: ${newName}`);
     }
     handleCloseContextMenu();
   }
 
 
   function handleDownload(file : DscFile) {
+    
+    
     if (contextMenu.file) {
       console.log(file);
       
-      alert(`Pobieranie pliku: ${contextMenu.file.name}`);
       axios.post("http://localhost:8080/download", file, {
         responseType: 'blob',
         headers:{
@@ -117,9 +116,22 @@ function App() {
                     {getProperFileIcon(item.name)}
                     <span className='fileName'>{item.name}</span>
                     <img
+                      
                       className='dotsIcon'
                       src='src/assets/3dots.svg'
                       alt='więcej opcji'
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleOnContextMenu(
+                          {
+                            ...e,
+                            preventDefault: () => {},
+                            clientX: (e as React.MouseEvent).clientX,
+                            clientY: (e as React.MouseEvent).clientY
+                          } as React.MouseEvent,
+                          item
+                        );
+                      }}
                     />
                   </div>
                 </div>
@@ -133,8 +145,10 @@ function App() {
           style={{ top: contextMenu.y, left: contextMenu.x, position: 'fixed', zIndex: 2000 }}
           onClick={e => e.stopPropagation()}
         >
-          <button className='contextMenuBtn' onClick={handleRename}>Zmień nazwę</button>
-          <button className='contextMenuBtn' onClick={() => handleDownload(contextMenu.file)}>Pobierz</button>
+          <>
+            <button className='contextMenuBtn' onClick={() => handleRename(contextMenu.file!)}>Change name</button>
+            <button className='contextMenuBtn' onClick={() => handleDownload(contextMenu.file!)}>Download</button>
+          </>
         </div>
       )}
     </>
