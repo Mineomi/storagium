@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import './App.css'
 import type { DscFile } from './DscFile';
 import axios from 'axios';
+import { saveAs } from 'file-saver';
 
 const fileTypesWithIcons: string[] = [
   "7z",
@@ -28,9 +29,18 @@ const fileTypesWithIcons: string[] = [
 
 function App() {
 
+
+
   const guildId : string = "848921667833167933";
 
   const [data, setData] = useState<DscFile[]>([])
+
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    visible: boolean;
+    file: DscFile | null;
+  }>({ x: 0, y: 0, visible: false, file: null });
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8080/files/848921667833167933')
@@ -38,6 +48,60 @@ function App() {
       .catch(error => console.error(error));
   }, []);
 
+  function handleOnContextMenu(e: React.MouseEvent, rightClickFile: DscFile) {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      visible: true,
+      file: rightClickFile
+    });
+  }
+
+
+  function handleCloseContextMenu() {
+    setContextMenu((prev) => ({ ...prev, visible: false, file: null }));
+  }
+
+
+  function handleRename() {
+    if (contextMenu.file) {
+      const newName = prompt('Podaj nową nazwę pliku:', contextMenu.file.name);
+      if (newName && newName !== contextMenu.file.name) {
+        alert(`Zmieniono nazwę pliku na: ${newName}`);
+      }
+    }
+    handleCloseContextMenu();
+  }
+
+
+  function handleDownload(file : DscFile) {
+    if (contextMenu.file) {
+      console.log(file);
+      
+      alert(`Pobieranie pliku: ${contextMenu.file.name}`);
+      axios.post("http://localhost:8080/download", file, {
+        responseType: 'blob',
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }).then(response =>{
+        saveAs(response.data, file.name)
+      }).catch(error =>{
+        console.error("Error while download file", error);
+      })
+    }
+    handleCloseContextMenu();
+  }
+
+
+  useEffect(() => {
+    if (contextMenu.visible) {
+      const listener = () => handleCloseContextMenu();
+      window.addEventListener('click', listener);
+      return () => window.removeEventListener('click', listener);
+    }
+  }, [contextMenu.visible]);
 
   return (
     <>
@@ -48,7 +112,7 @@ function App() {
       <div className='container'>
             {data.map(item => {
               return (
-                <div className='file'>
+                <div className='file' onContextMenu={e => handleOnContextMenu(e, item)}>
                   <div className='fileHeader'>
                     {getProperFileIcon(item.name)}
                     <span className='fileName'>{item.name}</span>
@@ -62,9 +126,17 @@ function App() {
               );
             })}
       </div>
-      
 
-      
+      {contextMenu.visible && contextMenu.file && (
+        <div
+          className='contextMenu'
+          style={{ top: contextMenu.y, left: contextMenu.x, position: 'fixed', zIndex: 2000 }}
+          onClick={e => e.stopPropagation()}
+        >
+          <button className='contextMenuBtn' onClick={handleRename}>Zmień nazwę</button>
+          <button className='contextMenuBtn' onClick={() => handleDownload(contextMenu.file)}>Pobierz</button>
+        </div>
+      )}
     </>
   )
 }

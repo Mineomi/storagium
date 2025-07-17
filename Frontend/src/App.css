@@ -50,7 +50,6 @@ h1, h2{
   font-size: 16px;
   font-weight: 600;
   color: #333;
-  /* gap i flex przeniesione do .fileHeader */
 }
 
 .dotsIcon {
@@ -58,4 +57,32 @@ h1, h2{
   height: 20px;
   object-fit: contain;
   cursor: pointer;
+}
+
+.contextMenu {
+  background: #fff;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 160px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 2000;
+}
+
+.contextMenuBtn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 10px 20px;
+  font-size: 15px;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.contextMenuBtn:hover {
+  background: #f0f4fa;
 }

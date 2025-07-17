@@ -1,11 +1,11 @@
 package pl.mineomi.dscloud.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.lingala.zip4j.exception.ZipException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import pl.mineomi.dscloud.JDA.DscFile;
 import pl.mineomi.dscloud.JDA.StorageManager;
@@ -44,17 +44,8 @@ public class TestController {
         return "small test file";
     }
 
-    @GetMapping("/download")
-    public ResponseEntity<StreamingResponseBody> getTest3() throws ZipException, MalformedURLException, ExecutionException, InterruptedException {
-        DscFile dscFile = new DscFile();
-        dscFile.setId("1394621066139402280");
-        dscFile.setName("hackToLearn2.mp4");
-        dscFile.setMessageIds(List.of("1394620977287004280", "1394621064654360657"));
-        dscFile.setSize(37057257);
-        dscFile.setUploadDate(new Date());
-        dscFile.setGuildId("848921667833167933");
-
-
+    @PostMapping("/download")
+    public ResponseEntity<StreamingResponseBody> getTest3(@RequestBody DscFile dscFile) throws ZipException, ExecutionException, InterruptedException {
         Path filePath = ZipHelper.downloadFile(dscFile);
 
         File file = filePath.toFile();

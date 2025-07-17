@@ -11,13 +11,14 @@ public class CorsConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("*")
-                        .allowedHeaders("*");
+                registry.addMapping("/**") // pozwól na wszystkie ścieżki
+                        .allowedOrigins("http://localhost:5173") // frontend port
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .exposedHeaders("Content-Disposition")
+                        .allowCredentials(true);
             }
         };
     }
