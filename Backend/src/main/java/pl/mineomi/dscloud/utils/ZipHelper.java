@@ -17,26 +17,30 @@ import java.util.concurrent.ExecutionException;
 
 public class ZipHelper {
     @SneakyThrows
-    public static void sendFiles(String filePath, String guildId) {
+    public static void sendFiles(Path path, String guildId, String uploadId) {
 
-        List<File> filesToAdd = List.of(
-                new File(filePath)
+        List<File> fileToAdd = List.of(
+                new File(path.toString())
         );
 
-        Path path = Paths.get(filePath);
         String fileName = path.getFileName().toString();
         long fileSize = Files.size(path);
 
-        File guildDirectory = new File("test2/" + guildId + "/" + fileName);
+        String uploadToDscDir = "test2/uploads/" + guildId + "/" + uploadId;
+
+        File guildDirectory = new File(uploadToDscDir);
         if(!guildDirectory.exists())
             guildDirectory.mkdirs();
 
-        ZipFile zipFile = new ZipFile("test2/" + guildId + "/" + fileName + "/" + fileName + ".zip");
-        zipFile.createSplitZipFile(filesToAdd, new ZipParameters(), true, 10 * 1024 * 1024); //Spliting zip file in 10MB parts
 
+        ZipFile zipFile = new ZipFile(uploadToDscDir + "/" + fileName + ".zip");
+        zipFile.createSplitZipFile(fileToAdd, new ZipParameters(), true, 10 * 1024 * 1024); //Spliting zip file in 10MB parts
 
+        //Delete temp files
+        Files.delete(path);
+        Files.delete(path.getParent());
 
-        StorageManager.saveFilesInChannel(fileName, guildId, fileSize);
+        StorageManager.saveFilesInChannel(fileName, guildId, fileSize, uploadId);
     }
 
 

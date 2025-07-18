@@ -102,6 +102,21 @@ function App() {
     }
   }, [contextMenu.visible]);
 
+  const handleUpload = (file : File) =>{
+      const formData = new FormData()
+      formData.append("file", file)
+
+      axios.post("http://localhost:8080/upload/" + guildId, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res =>{
+        console.log("File sent", res.data);
+      }).catch(err =>{
+        console.error("Error while sending file", err);
+      })
+  }
+
   return (
     <>
       <h1>storagium - In development</h1>
@@ -137,6 +152,11 @@ function App() {
                 </div>
               );
             })}
+
+            <input type="file" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUpload(file);
+                  }} />
       </div>
 
       {contextMenu.visible && contextMenu.file && (
