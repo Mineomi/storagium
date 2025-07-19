@@ -75,6 +75,13 @@ public class DscFilesController {
         }catch (IOException e){
             return ResponseEntity.status(500).body("Error while saving file");
         }
+    }
 
+    @DeleteMapping("/file")
+    public String deleteDscFile(@RequestBody DscFile dscFile) {
+
+        StorageManager.deleteDscFile(dscFile);
+
+        return "delete test";
     }
 }

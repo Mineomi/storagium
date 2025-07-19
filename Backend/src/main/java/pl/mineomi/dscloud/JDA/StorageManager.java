@@ -191,7 +191,11 @@ public class StorageManager {
     public static void deleteDscFile(DscFile dscFile) {
         StorageManager storageManager = getStorageManagerByGuildId(dscFile.getGuildId());
 
-        storageManager.content.deleteMessagesByIds(dscFile.getMessageIds()).queue();
+        if(dscFile.getMessageIds().size() < 2)
+            storageManager.content.deleteMessageById(dscFile.getMessageIds().get(0)).queue();
+        else
+            storageManager.content.deleteMessagesByIds(dscFile.getMessageIds()).queue();
+
         storageManager.metaContent.deleteMessageById(dscFile.getId()).queue();
     }
 

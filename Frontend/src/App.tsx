@@ -48,7 +48,7 @@ function App() {
       .catch(error => console.error(error));
   }, []);
 
-  function handleOnContextMenu(e: React.MouseEvent, rightClickFile: DscFile) {
+  const handleOnContextMenu = (e: React.MouseEvent, rightClickFile: DscFile) => {
     e.preventDefault();
     setContextMenu({
       x: e.clientX,
@@ -59,12 +59,12 @@ function App() {
   }
 
 
-  function handleCloseContextMenu() {
+  const handleCloseContextMenu = () => {
     setContextMenu((prev) => ({ ...prev, visible: false, file: null }));
   }
 
 
-  function handleRename(file: DscFile) {
+  const handleRename = (file: DscFile) => {
     const newName = prompt('Podaj nową nazwę pliku:', file.name);
     if (newName && newName !== file.name) {
       alert(`Zmieniono nazwę pliku na: ${newName}`);
@@ -73,11 +73,10 @@ function App() {
   }
 
 
-  function handleDownload(file : DscFile) {
+  const handleDownload = (file : DscFile) => {
     
     
     if (contextMenu.file) {
-      console.log(file);
       
       axios.post("http://localhost:8080/download", file, {
         responseType: 'blob',
@@ -114,6 +113,19 @@ function App() {
         console.log("File sent", res.data);
       }).catch(err =>{
         console.error("Error while sending file", err);
+      })
+  }
+
+  const handleDelete = (dscFile : DscFile) =>{
+      axios.delete("http://localhost:8080/file", {
+        data: dscFile,
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }).then(res =>{
+        //Delete file from local array
+        const newData = [...data].filter(item => item.id !== dscFile.id)
+        setData(newData);
       })
   }
 
@@ -166,8 +178,9 @@ function App() {
           onClick={e => e.stopPropagation()}
         >
           <>
-            <button className='contextMenuBtn' onClick={() => handleRename(contextMenu.file!)}>Change name</button>
+            <button className='contextMenuBtn' onClick={() => handleRename(contextMenu.file!)}>Rename</button>
             <button className='contextMenuBtn' onClick={() => handleDownload(contextMenu.file!)}>Download</button>
+            <button className='contextMenuBtn' onClick={() => handleDelete(contextMenu.file!)}>Delete</button>
           </>
         </div>
       )}

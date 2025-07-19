@@ -37,19 +37,5 @@ public class TestController {
 
 
 
-    @GetMapping("/delete")
-    public String getTest4() {
-        DscFile dscFile = new DscFile();
-        dscFile.setId("1394621066139402280");
-        dscFile.setName("hackToLearn2.mp4");
-        dscFile.setMessageIds(List.of("1394620977287004280", "1394621064654360657"));
-        dscFile.setSize(37057257);
-        dscFile.setUploadDate(new Date());
-        dscFile.setGuildId("848921667833167933");
 
-
-        StorageManager.deleteDscFile(dscFile);
-
-        return "delete test";
-    }
 }
