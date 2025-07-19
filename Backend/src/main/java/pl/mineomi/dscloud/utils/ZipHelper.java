@@ -11,6 +11,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -57,13 +58,14 @@ public class ZipHelper {
             String mergedZipFileName = usedDirectory + "/" + dscFile.getName() + "0.zip";
 
             new ZipFile(partFileName).mergeSplitFiles(new File(mergedZipFileName));
-            new ZipFile(new File(mergedZipFileName)).extractFile(dscFile.getName(), usedDirectory);
+            new ZipFile(new File(mergedZipFileName)).extractAll(usedDirectory + "/" + "unzippedFile");
         }
         else
-            new ZipFile(new File(partFileName)).extractFile(dscFile.getName(), usedDirectory);
+            new ZipFile(new File(partFileName)).extractAll(usedDirectory + "/" + "unzippedFile");
 
+        String unzippedFileName = Arrays.stream(new File(usedDirectory  + "/" + "unzippedFile").listFiles()).toList().get(0).getName();
 
-        return Paths.get(usedDirectory +"/"+dscFile.getName() );
+        return Paths.get(usedDirectory +"/unzippedFile/" +unzippedFileName );
 
 
 

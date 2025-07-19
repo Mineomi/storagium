@@ -78,10 +78,18 @@ public class DscFilesController {
     }
 
     @DeleteMapping("/file")
-    public String deleteDscFile(@RequestBody DscFile dscFile) {
+    public ResponseEntity<String> deleteDscFile(@RequestBody DscFile dscFile) {
 
         StorageManager.deleteDscFile(dscFile);
 
-        return "delete test";
+        return ResponseEntity.ok("File deleted: " + dscFile.getName());
+    }
+
+    @PutMapping("file/{newName}")
+    public ResponseEntity<String> renameDscFile(@RequestBody DscFile dscFile, @PathVariable String newName) throws IOException, ExecutionException, InterruptedException {
+
+        StorageManager.renameDscFile(dscFile, newName);
+
+        return ResponseEntity.ok("File " + dscFile.getName() + " renamed to: " + newName);
     }
 }

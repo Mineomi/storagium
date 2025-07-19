@@ -27,6 +27,38 @@ public class StorageManager {
     private int uploadStatus = 0;
     private int downloadStatus = 0;
 
+    public static void renameDscFile(DscFile dscFile, String newName) throws ExecutionException, InterruptedException, IOException {
+        StorageManager storageManager = getStorageManagerByGuildId(dscFile.getGuildId());
+
+        Message message = storageManager.metaContent.retrieveMessageById(dscFile.getId()).complete();
+
+        String renameId = UUID.randomUUID().toString();
+
+
+        File file = new File("test2/" + dscFile.getGuildId() + "/" + renameId + "/" + message.getAttachments().get(0));
+        file.getParentFile().mkdirs();
+        message.getAttachments().get(0).getProxy().downloadToFile(file).get();
+
+        ObjectMapper mapper = new ObjectMapper();
+        DscFile newDscFile = mapper.readValue(file, DscFile.class);
+        newDscFile.setName(newName);
+
+        message.delete().queue();
+        file.delete();
+
+        File newJsonFile = new File("test2/" + dscFile.getGuildId() + "/" + renameId + "/" + newName + ".json");
+        mapper.writeValue(newJsonFile, newDscFile);
+
+
+
+        FileUpload metaFile = FileUpload.fromData(newJsonFile);
+        storageManager.metaContent.sendMessage("")
+                .addFiles(metaFile)
+                .complete();
+
+        deleteFolder(newJsonFile.getParentFile());
+    }
+
 
     public void setupStorageChannels(String guildId) {
         //If it doesn't have, create storage category
@@ -85,7 +117,7 @@ public class StorageManager {
         for(String id : dscFile.getMessageIds()){
             Message message = storageManager.content.retrieveMessageById(id).complete();
             for (Message.Attachment attachment : message.getAttachments()){
-                File file = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/" + attachment.getFileName());
+                File file = new File("test2/" + dscFile.getGuildId() + "/" + dscFile.getName() + "/" + dscFile.getName() + "." + getFileExtension(attachment.getFileName()));
                 attachment.getProxy().downloadToFile(file).get();
                 filesNumber++;
             }
@@ -230,5 +262,10 @@ public class StorageManager {
         });
 
         return resultFuture;
+    }
+
+    public static String getFileExtension(String name) {
+        int lastDot = name.lastIndexOf('.');
+        return (lastDot == -1) ? "" : name.substring(lastDot + 1);
     }
 }

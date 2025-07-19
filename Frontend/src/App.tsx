@@ -67,7 +67,13 @@ function App() {
   const handleRename = (file: DscFile) => {
     const newName = prompt('Podaj nową nazwę pliku:', file.name);
     if (newName && newName !== file.name) {
-      alert(`Zmieniono nazwę pliku na: ${newName}`);
+      axios.put("http://localhost:8080/file/" + newName, file, {
+          headers:{
+            'Content-Type': 'application/json'
+          }
+      }).catch(err =>{
+        console.error("Error while renaming file: " + err);
+      })
     }
     handleCloseContextMenu();
   }
@@ -114,6 +120,7 @@ function App() {
       }).catch(err =>{
         console.error("Error while sending file", err);
       })
+      handleCloseContextMenu();
   }
 
   const handleDelete = (dscFile : DscFile) =>{
@@ -127,6 +134,7 @@ function App() {
         const newData = [...data].filter(item => item.id !== dscFile.id)
         setData(newData);
       })
+      handleCloseContextMenu();
   }
 
   return (
