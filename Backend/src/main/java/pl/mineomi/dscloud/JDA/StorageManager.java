@@ -133,7 +133,7 @@ public class StorageManager {
         return storageManagerMap.get(guildId);
     }
 
-    public static void saveFilesInChannel(String fileName, String guildId, long fileSize, String uploadId) throws IOException {
+    public static DscFile saveFilesInChannel(String fileName, String guildId, long fileSize, String uploadId) throws IOException {
         StorageManager storageManager = getStorageManagerByGuildId(guildId);
 
         File dir = new File("test2/uploads/" + guildId + "/" + uploadId);
@@ -202,6 +202,8 @@ public class StorageManager {
 
         //Delete temp directory
         deleteFolder(dir);
+
+        return dscFile;
     }
 
     private static void deleteFolder(File folder) {

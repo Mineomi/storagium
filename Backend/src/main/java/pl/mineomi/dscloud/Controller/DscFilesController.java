@@ -56,9 +56,9 @@ public class DscFilesController {
     }
 
     @PostMapping("/upload/{guildId}")
-    public ResponseEntity<String> handleFileUpload(@PathVariable String guildId, @RequestParam("file")MultipartFile file) {
+    public ResponseEntity<DscFile> handleFileUpload(@PathVariable String guildId, @RequestParam("file")MultipartFile file) {
         if(file.isEmpty())
-            return ResponseEntity.badRequest().body("Empty file");
+            return ResponseEntity.badRequest().body(new DscFile());
 
         //Id to create unique temporary folder names
         String uploadId = UUID.randomUUID().toString();
@@ -69,11 +69,11 @@ public class DscFilesController {
             Files.createDirectories(path.getParent());
             Files.write(path, file.getBytes());
 
-            ZipHelper.sendFiles(path, guildId, uploadId);
+            DscFile dscFile = ZipHelper.sendFiles(path, guildId, uploadId);
 
-            return ResponseEntity.ok("File saved:" + file.getOriginalFilename());
+            return ResponseEntity.ok(dscFile);
         }catch (IOException e){
-            return ResponseEntity.status(500).body("Error while saving file");
+            return ResponseEntity.status(500).body(new DscFile());
         }
     }
 

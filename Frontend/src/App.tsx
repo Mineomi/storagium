@@ -116,7 +116,9 @@ function App() {
           'Content-Type': 'multipart/form-data'
         }
       }).then(res =>{
-        console.log("File sent", res.data);
+        const newData = [...data]
+        newData.push(res.data)
+        setData(newData)
       }).catch(err =>{
         console.error("Error while sending file", err);
       })

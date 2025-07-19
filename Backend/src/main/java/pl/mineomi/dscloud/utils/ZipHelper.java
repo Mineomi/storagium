@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ZipHelper {
     @SneakyThrows
-    public static void sendFiles(Path path, String guildId, String uploadId) {
+    public static DscFile sendFiles(Path path, String guildId, String uploadId) {
 
         List<File> fileToAdd = List.of(
                 new File(path.toString())
@@ -41,7 +41,7 @@ public class ZipHelper {
         Files.delete(path);
         Files.delete(path.getParent());
 
-        StorageManager.saveFilesInChannel(fileName, guildId, fileSize, uploadId);
+        return StorageManager.saveFilesInChannel(fileName, guildId, fileSize, uploadId);
     }
 
 
