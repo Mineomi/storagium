@@ -80,8 +80,12 @@ public class DscFilesController {
     @DeleteMapping("/file")
     public ResponseEntity<String> deleteDscFile(@RequestBody DscFile dscFile) {
 
-        StorageManager.deleteDscFile(dscFile);
-
+        try{
+            StorageManager.deleteDscFile(dscFile);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Server error");
+        }
+        
         return ResponseEntity.ok("File deleted: " + dscFile.getName());
     }
 

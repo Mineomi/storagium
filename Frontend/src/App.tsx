@@ -135,6 +135,8 @@ function App() {
         //Delete file from local array
         const newData = [...data].filter(item => item.id !== dscFile.id)
         setData(newData);
+      }).catch(err=>{
+        console.error(err);
       })
       handleCloseContextMenu();
   }
