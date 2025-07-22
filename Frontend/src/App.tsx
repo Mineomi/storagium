@@ -42,6 +42,8 @@ function App() {
     file: DscFile | null;
   }>({ x: 0, y: 0, visible: false, file: null });
 
+  const [selectedFile, setSelectedFile] = useState<DscFile | null>(null);
+
   useEffect(() => {
     axios.get('http://127.0.0.1:8080/files/848921667833167933')
       .then(response => setData(response.data))
@@ -82,7 +84,6 @@ function App() {
   const handleDownload = (file : DscFile) => {
     
     
-    if (contextMenu.file) {
       
       axios.post("http://localhost:8080/download", file, {
         responseType: 'blob',
@@ -94,7 +95,7 @@ function App() {
       }).catch(error =>{
         console.error("Error while download file", error);
       })
-    }
+    
     handleCloseContextMenu();
   }
 
@@ -141,16 +142,25 @@ function App() {
       handleCloseContextMenu();
   }
 
+  const handleFileClick = (file: DscFile) => {
+    setSelectedFile(file);
+    handleCloseContextMenu();
+  };
+
+  const handleCloseSidebar = () => {
+    setSelectedFile(null);
+  };
+
   return (
     <>
       <h1>storagium - In development</h1>
 
       <h2>Guild id: <span style={{color: 'grey'}}>{guildId}</span></h2>
 
-      <div className='container'>
+      <div className={'container' + (selectedFile ? ' container--with-sidebar' : '')}>
             {data.map(item => {
               return (
-                <div className='file' onContextMenu={e => handleOnContextMenu(e, item)}>
+                <div key={item.id} className='file' onClick={() => handleFileClick(item)} onContextMenu={e => handleOnContextMenu(e, item)}>
                   <div className='fileHeader'>
                     {getProperFileIcon(item.name)}
                     <span className='fileName'>{item.name}</span>
@@ -194,6 +204,27 @@ function App() {
             <button className='contextMenuBtn' onClick={() => handleDownload(contextMenu.file!)}>Download</button>
             <button className='contextMenuBtn' onClick={() => handleDelete(contextMenu.file!)}>Delete</button>
           </>
+        </div>
+      )}
+
+      {selectedFile && (
+        <div className='sidebar-right'>
+          <button style={{float: 'right', margin: 8, fontSize: 18, border: 'none', background: 'none', cursor: 'pointer'}} onClick={handleCloseSidebar}>×</button>
+          <div style={{padding: '32px 24px 24px 24px'}}>
+            <h2>File details</h2>
+            <div style={{marginBottom: 16}}>
+              {getProperFileIcon(selectedFile.name)}
+            </div>
+            <div><b>Name:</b> {selectedFile.name}</div>
+            <div><b>Size:</b> {selectedFile.size/1024 < 10240 ? (Math.round(selectedFile.size/1024) + " KB") : (Math.round(selectedFile.size/1024/1024) + " MB")}</div>
+            <div><b>Guild ID:</b> {selectedFile.guildId}</div>
+            <div><b>Upload date:</b> {new Date(selectedFile.uploadDate).toLocaleString()}</div>
+            <div style={{marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8}}>
+              <button className='contextMenuBtn' onClick={() => handleDownload(selectedFile)}>Download</button>
+              <button className='contextMenuBtn' onClick={() => handleRename(selectedFile)}>Rename</button>
+              <button className='contextMenuBtn' onClick={() => handleDelete(selectedFile)}>Delete</button>
+            </div>
+          </div>
         </div>
       )}
     </>

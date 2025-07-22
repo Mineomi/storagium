@@ -9,6 +9,11 @@ h1, h2{
   padding: 24px;
 }
 
+.container--with-sidebar {
+  padding-right: 364px; /* szerokość sidebaru + trochę marginesu */
+  transition: padding-right 0.2s;
+}
+
 .file {
   background-color: #f5f7fa;
   border: 1px solid #e0e6ed;
@@ -85,4 +90,35 @@ h1, h2{
 }
 .contextMenuBtn:hover {
   background: #f0f4fa;
+}
+
+.sidebar-right {
+  right: 0;
+  left: auto;
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  z-index: 1100;
+  animation: slideInSidebarRight 0.2s cubic-bezier(0.4,0,0.2,1);
+  width: 340px;
+  max-width: 100vw;
+  overflow-y: auto;
+  border-left: 1px solid #e0e6ed;
+}
+
+@media (max-width: 600px) {
+  .sidebar-right {
+    width: 100vw;
+    border-left: none;
+  }
+  .container--with-sidebar {
+    padding-right: 0;
+  }
+}
+
+@keyframes slideInSidebarRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
