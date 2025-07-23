@@ -43,6 +43,7 @@ function App() {
   }>({ x: 0, y: 0, visible: false, file: null });
 
   const [selectedFile, setSelectedFile] = useState<DscFile | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8080/files/848921667833167933')
@@ -151,13 +152,42 @@ function App() {
     setSelectedFile(null);
   };
 
+  // Funkcje obsługi drag & drop
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      handleUpload(file);
+      e.dataTransfer.clearData();
+    }
+  };
+
   return (
-    <>
+    <div className='app-wrapper'>
       <h1>storagium - In development</h1>
 
       <h2>Guild id: <span style={{color: 'grey'}}>{guildId}</span></h2>
 
-      <div className={'container' + (selectedFile ? ' container--with-sidebar' : '')}>
+      <div
+        className={'container' + (selectedFile ? ' container--with-sidebar' : '') + (isDragActive ? ' container--drag-active' : '')}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
             {data.map(item => {
               return (
                 <div key={item.id} className='file' onClick={() => handleFileClick(item)} onContextMenu={e => handleOnContextMenu(e, item)}>
@@ -187,10 +217,6 @@ function App() {
               );
             })}
 
-            <input type="file" onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) handleUpload(file);
-                  }} />
       </div>
 
       {contextMenu.visible && contextMenu.file && (
@@ -227,7 +253,7 @@ function App() {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

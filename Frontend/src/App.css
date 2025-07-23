@@ -1,17 +1,44 @@
+body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+}
+
 h1, h2{
   text-align: center;
+  margin: 0;
+  padding: 16px 0 0 0;
 }
 
 .container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  padding: 24px;
+  gap: 8px;
+  padding: 12px;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 120px); /* 120px na nagłówki, dostosuj jeśli potrzeba */
+  overflow-y: auto;
+  box-sizing: border-box;
+  align-content: start;
 }
 
 .container--with-sidebar {
   padding-right: 364px; /* szerokość sidebaru + trochę marginesu */
   transition: padding-right 0.2s;
+}
+
+.container--drag-active {
+  border: 2px dashed #1976d2;
+  background-color: #e3f2fd;
+  transition: border 0.2s, background 0.2s;
 }
 
 .file {
@@ -21,6 +48,8 @@ h1, h2{
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  align-self: start;
+  height: auto;
 }
 
 .file:hover {
@@ -115,6 +144,10 @@ h1, h2{
   }
   .container--with-sidebar {
     padding-right: 0;
+  }
+  .container {
+    max-height: calc(100vh - 100px);
+    padding: 12px;
   }
 }
 
