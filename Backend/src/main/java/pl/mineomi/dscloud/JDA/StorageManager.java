@@ -196,9 +196,11 @@ public class StorageManager {
 
         //Send json DscFile to suitable discord channel
         FileUpload metaFile = FileUpload.fromData(jsonFile);
-        storageManager.metaContent.sendMessage("")
+        String dscFileId = storageManager.metaContent.sendMessage("")
                 .addFiles(metaFile)
-                        .complete();
+                        .complete().getId();
+
+        dscFile.setId(dscFileId);
 
         //Delete temp directory
         deleteFolder(dir);

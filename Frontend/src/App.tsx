@@ -4,6 +4,7 @@ import './App.css'
 import type { DscFile } from './DscFile';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import type { UploadStatus } from './uploadStatus';
 
 const fileTypesWithIcons: string[] = [
   "7z",
@@ -34,6 +35,7 @@ function App() {
   const guildId : string = "848921667833167933";
 
   const [data, setData] = useState<DscFile[]>([])
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus[]>([]);
 
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -113,18 +115,26 @@ function App() {
       const formData = new FormData()
       formData.append("file", file)
 
-      axios.post("http://localhost:8080/upload/" + guildId, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+    axios.post("http://localhost:8080/upload/" + guildId, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadStatus([...uploadStatus, {progress: percentCompleted, name: file.name}]);
         }
-      }).then(res =>{
-        const newData = [...data]
-        newData.push(res.data)
-        setData(newData)
-      }).catch(err =>{
-        console.error("Error while sending file", err);
-      })
-      handleCloseContextMenu();
+      }
+    }).then(res => {
+      const newData = [...data];
+      newData.push(res.data);
+      setData(newData);
+      setUploadStatus(prev => prev.filter(item => item.name !== file.name));
+    }).catch(err => {
+      console.error("Error while sending file", err);
+      setUploadStatus(prev => prev.filter(item => item.name !== file.name));
+    });
+    handleCloseContextMenu();
   }
 
   const handleDelete = (dscFile : DscFile) =>{
@@ -172,7 +182,6 @@ function App() {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       handleUpload(file);
-      e.dataTransfer.clearData();
     }
   };
 
@@ -181,6 +190,17 @@ function App() {
       <h1>storagium - In development</h1>
 
       <h2>Guild id: <span style={{color: 'grey'}}>{guildId}</span></h2>
+
+      {uploadStatus.length > 0 && uploadStatus[0].progress > 0 && (
+        <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+          {uploadStatus.map(item => (
+            <div style={{ width: 200, margin: '16px auto' }}>
+              <div style={{ width: `${item.progress}%`, background: 'green', height: 10 }} />
+              <div>{item.name} {item.progress}%</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div
         className={'container' + (selectedFile ? ' container--with-sidebar' : '') + (isDragActive ? ' container--drag-active' : '')}
