@@ -259,7 +259,8 @@ function App() {
           <div style={{padding: '32px 24px 24px 24px'}}>
             <h2>File details</h2>
             <div style={{marginBottom: 16}}>
-              {getProperFileIcon(selectedFile.name)}
+              {getFileExtension(selectedFile.name) == "png" || getFileExtension(selectedFile.name) == "jpg" ? <img style={{width: '100%'}} src={'http://localhost:8080/image/' + encodeURIComponent(JSON.stringify(selectedFile))}/> : getProperFileIcon(selectedFile.name)}
+              
             </div>
             <div><b>Name:</b> {selectedFile.name}</div>
             <div><b>Size:</b> {selectedFile.size/1024 < 10240 ? (Math.round(selectedFile.size/1024) + " KB") : (Math.round(selectedFile.size/1024/1024) + " MB")}</div>
@@ -278,14 +279,18 @@ function App() {
 }
 
 const getProperFileIcon = (fileName : string) =>{
-  const fileNameParts : string[] = fileName.split(".");
-  const fileType : string = fileNameParts[fileNameParts.length - 1];
+  const fileType = getFileExtension(fileName)
 
   if(fileTypesWithIcons.includes(fileType)){
     return <img className='smallIcon' src={`src/assets/${fileType}.png`} alt={fileType}/>
   }
   
   return <img className='smallIcon' src='src/assets/file.png'/>
+}
+
+const getFileExtension = (fileName: string) =>{
+  const fileNameParts : string[] = fileName.split(".");
+  return fileNameParts[fileNameParts.length - 1];
 }
 
 export default App

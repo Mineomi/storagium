@@ -1,6 +1,9 @@
 package pl.mineomi.dscloud.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Resource;
 import net.lingala.zip4j.exception.ZipException;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +14,12 @@ import pl.mineomi.dscloud.JDA.DscFile;
 import pl.mineomi.dscloud.JDA.StorageManager;
 import pl.mineomi.dscloud.utils.ZipHelper;
 
+import javax.naming.spi.ResolveResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -95,5 +100,26 @@ public class DscFilesController {
         StorageManager.renameDscFile(dscFile, newName);
 
         return ResponseEntity.ok("File " + dscFile.getName() + " renamed to: " + newName);
+    }
+
+    @GetMapping("image/{stringifiedDscFile}")
+    public ResponseEntity<UrlResource> imagePreview(@PathVariable String stringifiedDscFile) throws IOException, ExecutionException, InterruptedException {
+        ObjectMapper mapper = new ObjectMapper();
+        DscFile dscFile = mapper.readValue(stringifiedDscFile, DscFile.class);
+
+        Path filePath = ZipHelper.downloadFile(dscFile);
+
+        if(!filePath.toFile().exists())
+            return ResponseEntity.notFound().build();
+
+        String mimeType = Files.probeContentType(filePath);
+        if(mimeType == null || !mimeType.startsWith("image/"))
+            return ResponseEntity.status(415).body(null);
+
+        UrlResource resource = new UrlResource(filePath.toUri().toString());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(mimeType))
+                .body(resource);
     }
 }
